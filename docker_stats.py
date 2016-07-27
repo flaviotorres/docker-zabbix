@@ -1,13 +1,16 @@
 #!/usr/bin/env python
-#
+# from: https://github.com/gomex/docker-zabbix
 
 from docker_service import DockerService
-
+import re
+import socket 
 parser = DockerService.OptionParser()
 parser.add_option('-u', '--url', default='unix://var/run/docker.sock',
                   help='URL for Docker service (Unix or TCP socket).')
 parser.add_option('-l', action="store_true", dest="list", default=False)
 (opts, args) = parser.parse_args()
+
+hostname = socket.gethostname().split('.')[0]
 
 # Docker access
 docker_service = DockerService.DockerService(opts.url)
@@ -17,15 +20,18 @@ if opts.list:
     con_list = []
     ## TODO: implement None return handle
     for container in containerslist:
-        Name = container['Names']
-        con_list.append({'{#NAME}': str(Name)[4:-2]})
+      Name = container['Names']
+      Name = re.sub('/|_[0-9].*','', Name[0])
+      Name = hostname+'_'+Name
+      con_list.append({'{#NAME}': Name})
     con_dict = {}
     con_dict['data'] = con_list
     print(json.dumps(con_dict))
 else:
     for container in containerslist:
         Name = container['Names']
-        Name = str(Name)[4:-2]
+        Name = re.sub('/|_[0-9].*','', Name[0])
+	Name = hostname+'_'+Name
         stats = docker_service.docker_stats(container['Id'])
         prevCPU = stats['cpu_stats']['cpu_usage']['total_usage']
         prevSystem = stats['cpu_stats']['system_cpu_usage']
@@ -67,4 +73,6 @@ else:
           DockerService.ZabbixMetric(Name, key_pkt_sent_err, tx_errors),
         ]
 
+        #print packet
         result = DockerService.ZabbixSender(use_config=True).send(packet)
+        #print result
