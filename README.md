@@ -5,6 +5,7 @@ Monitor resource used by running containers
 # TODO
 
 - [x] ~~Get informations about percent used CPU, percent used RAM memory and network~~ 
+- [x] ~~Get informations about Java threads, Heap and NonHeap provided by jolokia~~ 
 - [x] ~~Add options to get information from all containers and not only using id container~~
 - [x] ~~Create DockerService package~~
 - [ ] Write tests for package
@@ -86,7 +87,7 @@ easy_install -U pip
 
 ## Zabbix server
 
-1. Import that [template](https://gitlab.com/Gomex/docker-monitor/raw/master/zbx_export_templates.xml) 
+1. Import that [template](https://github.com/flaviotorres/docker-zabbix/blob/master/zbx_export_templates.xml) 
 1. Create a host to your Docker host server and link the template "Template Docker Host"
 1. Wait the containers :P
 
